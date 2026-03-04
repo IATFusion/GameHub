@@ -3,6 +3,7 @@ import Phaser from 'phaser'
 import { BootScene } from './scenes/BootScene'
 import { GameScene } from './scenes/GameScene'
 import { PreloadScene } from './scenes/PreloadScene'
+import { SplashScene } from './scenes/SplashScene'
 import { UIScene } from './scenes/UIScene'
 
 /**
@@ -93,6 +94,6 @@ export function createGameConfig(parent: HTMLElement): Phaser.Types.Core.GameCon
         debug: false,
       },
     },
-    scene: [BootScene, PreloadScene, GameScene, UIScene],
+    scene: [BootScene, SplashScene, PreloadScene, GameScene, UIScene],
   }
 }

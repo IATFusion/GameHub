@@ -36,13 +36,16 @@ export class UIScene extends Phaser.Scene {
   private restartButton!:  Phaser.GameObjects.Text
 
   /* ── game-over / leaderboard overlay ── */
-  private overlayBg!:        Phaser.GameObjects.Rectangle
-  private overlayTitle!:     Phaser.GameObjects.Text
-  private overlayScore!:     Phaser.GameObjects.Text
-  private overlayStatus!:    Phaser.GameObjects.Text       // "Submitting…" / "Failed" etc.
-  private overlayRows:       Phaser.GameObjects.Text[] = []
-  private overlayContainer!: Phaser.GameObjects.Container  // groups everything for easy hide/show
+  private overlayBg!:         Phaser.GameObjects.Rectangle
+  private overlayBgImage!:    Phaser.GameObjects.Image       // themed leaderboard panel
+  private overlayTitle!:      Phaser.GameObjects.Text
+  private overlayScore!:      Phaser.GameObjects.Text
+  private overlayStatus!:     Phaser.GameObjects.Text
+  private overlayRows:        Phaser.GameObjects.Text[] = []
+  private overlayContainer!:  Phaser.GameObjects.Container
   private overlayRestartBtn!: Phaser.GameObjects.Text
+  private leaderboardButton!: Phaser.GameObjects.Text        // always-visible HUD button
+  private overlayMode:        'gameover' | 'browse' = 'gameover'
 
   private sessionBest = 0
   private overlayVisible = false
@@ -79,14 +82,14 @@ export class UIScene extends Phaser.Scene {
         .text(0, 0, txt, { fontFamily: FONT, fontSize: size, color, fontStyle: bold ? 'bold' : 'normal' })
         .setScrollFactor(0).setDepth(10)
 
-    this.scoreLabelText = mk('SCORE', '11px', '#475569')
+    this.scoreLabelText = mk('SCORE', '11px', '#7dd3fc')
     this.scoreValueText = mk('0',     '32px', '#f1f5f9', true)
-    this.bestLabelText  = mk('BEST',  '11px', '#78350f')
+    this.bestLabelText  = mk('BEST',  '11px', '#fcd34d')
     this.bestValueText  = mk(String(this.sessionBest), '32px', '#fbbf24', true)
-    this.timerLabelText = mk('TIME',  '11px', '#475569')
+    this.timerLabelText = mk('TIME',  '11px', '#7dd3fc')
     this.timerValueText = mk('60',    '32px', '#f1f5f9', true)
-    this.comboLabelText = mk('COMBO', '11px', '#475569')
-    this.comboValueText = mk('-',     '24px', '#fbbf24', true)
+    this.comboLabelText = mk('COMBO', '11px', '#c8ff00')
+    this.comboValueText = mk('-',     '24px', '#fef08a', true)
 
     // H) HUD polish – subtle glow shadow + dark stroke on value texts
     this.scoreValueText
@@ -103,16 +106,37 @@ export class UIScene extends Phaser.Scene {
       .setStroke('#0b1a12', 2)
 
     this.pauseButton = this.add
-      .text(0, 0, 'Pause', { fontFamily: FONT, fontSize: '14px', color: '#93c5fd' })
+      .text(0, 0, '⏸ Pause', {
+        fontFamily: FONT, fontSize: '13px', color: '#e0f2fe', fontStyle: 'bold',
+        backgroundColor: '#1a3a5c', padding: { x: 12, y: 7 },
+      })
       .setScrollFactor(0).setDepth(10)
       .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.togglePause())
+      .on('pointerover',  () => this.pauseButton.setAlpha(0.75))
+      .on('pointerout',   () => this.pauseButton.setAlpha(1))
+      .on('pointerdown',  () => this.togglePause())
 
     this.restartButton = this.add
-      .text(0, 0, 'Restart', { fontFamily: FONT, fontSize: '14px', color: '#a7f3d0' })
+      .text(0, 0, '↺ Restart', {
+        fontFamily: FONT, fontSize: '13px', color: '#d1fae5', fontStyle: 'bold',
+        backgroundColor: '#14432a', padding: { x: 12, y: 7 },
+      })
       .setScrollFactor(0).setDepth(10)
       .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.restartGame())
+      .on('pointerover',  () => this.restartButton.setAlpha(0.75))
+      .on('pointerout',   () => this.restartButton.setAlpha(1))
+      .on('pointerdown',  () => this.restartGame())
+
+    this.leaderboardButton = this.add
+      .text(0, 0, '🏆 Leaderboard', {
+        fontFamily: FONT, fontSize: '13px', color: '#c8ff00', fontStyle: 'bold',
+        backgroundColor: '#2a3a00', padding: { x: 12, y: 7 },
+      })
+      .setScrollFactor(0).setDepth(10)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerover',  () => this.leaderboardButton.setAlpha(0.75))
+      .on('pointerout',   () => this.leaderboardButton.setAlpha(1))
+      .on('pointerdown',  () => this.showLeaderboardOnly())
 
     this.layoutPanel()
   }
@@ -135,71 +159,161 @@ export class UIScene extends Phaser.Scene {
   private createOverlay(): void {
     this.overlayContainer = this.add.container(0, 0).setDepth(50)
 
-    // Dark semi-transparent full-screen backdrop
-    this.overlayBg = this.add.rectangle(0, 0, 10, 10, 0x000000, 0.82)
+    // Full-screen dim backdrop
+    this.overlayBg = this.add.rectangle(0, 0, 10, 10, 0x000000, 0.88)
     this.overlayContainer.add(this.overlayBg)
 
+    // Themed leaderboard panel image
+    this.overlayBgImage = this.add.image(0, 0, 'leaderboard_bg').setOrigin(0.5)
+    this.overlayContainer.add(this.overlayBgImage)
+
+    // GAME OVER title – shown above the panel in gameover mode only
     this.overlayTitle = this.add.text(0, 0, 'GAME OVER', {
-      fontFamily: FONT, fontSize: '28px', color: '#fca5a5', fontStyle: 'bold', align: 'center',
-    }).setOrigin(0.5, 0)
+      fontFamily: FONT, fontSize: '26px', color: '#c8ff00',
+      fontStyle: 'bold', align: 'center',
+      stroke: '#0b1a00', strokeThickness: 4,
+    }).setOrigin(0.5, 1)
+      .setShadow(0, 0, '#2aff7b', 12, true, true)
     this.overlayContainer.add(this.overlayTitle)
 
+    // Score line – shown below title in gameover mode
     this.overlayScore = this.add.text(0, 0, '', {
-      fontFamily: FONT, fontSize: '20px', color: '#f1f5f9', align: 'center',
-    }).setOrigin(0.5, 0)
+      fontFamily: FONT, fontSize: '18px', color: '#ffffff',
+      align: 'center', stroke: '#0b1a00', strokeThickness: 3,
+    }).setOrigin(0.5, 1)
     this.overlayContainer.add(this.overlayScore)
 
+    // Status line (submitting / error)
     this.overlayStatus = this.add.text(0, 0, '', {
-      fontFamily: FONT, fontSize: '13px', color: '#94a3b8', align: 'center',
+      fontFamily: FONT, fontSize: '12px', color: '#7aad00', align: 'center',
     }).setOrigin(0.5, 0)
     this.overlayContainer.add(this.overlayStatus)
 
-    // 10 row slots for leaderboard entries
+    // 10 row slots – text sits inside the image's row boxes
     for (let i = 0; i < 10; i++) {
       const row = this.add.text(0, 0, '', {
-        fontFamily: FONT, fontSize: '13px', color: '#e2e8f0',
-      }).setOrigin(0, 0)
+        fontFamily: FONT, fontSize: '13px', color: '#b8ff00', fontStyle: 'bold',
+      }).setOrigin(0, 0.5)
       this.overlayRows.push(row)
       this.overlayContainer.add(row)
     }
 
+    // Bottom action button
     this.overlayRestartBtn = this.add.text(0, 0, 'PLAY AGAIN', {
-      fontFamily: FONT, fontSize: '16px', color: '#0b0f14', backgroundColor: '#4ade80',
-      padding: { x: 20, y: 10 },
-    }).setOrigin(0.5, 0).setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.restartGame())
+      fontFamily: FONT, fontSize: '16px', color: '#0b1a00',
+      backgroundColor: '#c8ff00',
+      padding: { x: 22, y: 11 },
+      fontStyle: 'bold',
+    }).setOrigin(0.5, 0)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => {
+        if (this.overlayMode === 'browse') this.hideOverlay()
+        else this.restartGame()
+      })
     this.overlayContainer.add(this.overlayRestartBtn)
 
     this.overlayContainer.setVisible(false)
     this.layoutOverlay()
   }
 
-  /** Position all overlay elements relative to screen center. */
+  /** Position all overlay elements relative to the leaderboard panel image. */
   private layoutOverlay(): void {
     const { width, height } = this.scale
-    const panelW = Math.min(width * 0.82, 360)
-    const cx     = width  / 2
-    const top    = height / 2 - 220   // start above center
+    const cx = width  / 2
+    const cy = height / 2
 
-    this.overlayBg.setPosition(cx, height / 2).setSize(width, height)
+    const margin = 18
 
-    let y = top
-    this.overlayTitle.setPosition(cx, y);  y += 40
-    this.overlayScore.setPosition(cx, y);  y += 32
-    this.overlayStatus.setPosition(cx, y); y += 24
+    this.overlayBg.setPosition(cx, cy).setSize(width, height)
 
-    // Divider line drawn as a thin tinted text (simplest approach)
-    y += 8
+    // leaderboard.png is 1024×1536 → aspect ratio 1.5
+    const IMG_RATIO = 1.5
 
-    const rowX = cx - panelW / 2 + 6
-    for (const row of this.overlayRows) {
-      row.setPosition(rowX, y)
-      row.setWordWrapWidth(panelW - 12)
-      y += 22
+    // Reserve vertical space below the panel so the game-over text and button don't get clipped
+    // on shorter mobile screens (e.g. height < ~625).
+    const reservedBelow = this.overlayMode === 'gameover' ? 190 : 70
+    const maxPanelHByHeight = Math.max(220, height - margin * 2 - reservedBelow)
+    const panelWByHeight = maxPanelHByHeight / IMG_RATIO
+
+    const panelW    = Math.min(width * 0.88, panelWByHeight)
+    const panelH    = panelW * IMG_RATIO
+    const panelLeft = cx - panelW / 2
+    const panelTop  = margin   // pin panel to top so the image's own internal top padding acts as the gap
+
+    this.overlayBgImage.setPosition(cx, panelTop + panelH / 2).setDisplaySize(panelW, panelH)
+
+    // Title + score visible only in gameover mode, below the panel
+    if (this.overlayMode === 'gameover') {
+      this.overlayTitle.setVisible(true)
+      this.overlayScore.setVisible(true)
+      this.overlayTitle.setPosition(cx, panelTop + panelH + 10)
+      this.overlayScore.setPosition(cx, panelTop + panelH + 38)
+    } else {
+      this.overlayTitle.setVisible(false)
+      this.overlayScore.setVisible(false)
     }
 
-    y += 10
-    this.overlayRestartBtn.setPosition(cx, y)
+    this.overlayStatus.setPosition(cx, panelTop + panelH * 0.14)
+
+    // Exact positions derived from image measurements (1024×1536):
+    //   text X = 305/1024 = 29.79% from left edge of image (then nudged right for padding)
+    //   row 1 Y = 381/1536 = 24.80% from top  (this is the TOP of the box)
+    //   box height = 47px → half = 23.5px → 23.5/1536 = 1.53% to reach centre
+    //   spacing = 79/1536  = 5.14%  per row
+    const ROW_TEXT_X_NUDGE_PX = 24 // extra left padding inside the row box
+    const rowTextX   = panelLeft + panelW * ((305 + ROW_TEXT_X_NUDGE_PX) / 1024)
+    const rowStartY  = panelTop  + panelH * (0.2480 + 0.0153)  // top + half-box
+    const rowSpacing = panelH    * 0.0514
+    const fs         = Math.max(9, Math.round(panelH * 0.0178))
+
+    for (let i = 0; i < this.overlayRows.length; i++) {
+      this.overlayRows[i]
+        .setOrigin(0, 0.5)
+        .setPosition(rowTextX, rowStartY + i * rowSpacing)
+        .setFontSize(`${fs}px`)
+    }
+
+    // Action button just below the panel
+    this.overlayRestartBtn.setPosition(cx, panelTop + panelH + (this.overlayMode === 'gameover' ? 64 : 10))
+
+    // Mobile/short screens: ensure the bottom content (score/button) stays visible.
+    // We keep the dim backdrop full-screen, but shift the panel + overlay elements upward as needed.
+    const bottomLimit = height - margin
+    const panelBounds = this.overlayBgImage.getBounds()
+    const restartBounds = this.overlayRestartBtn.getBounds()
+
+    let maxBottom = Math.max(panelBounds.bottom, restartBounds.bottom)
+    if (this.overlayMode === 'gameover') {
+      maxBottom = Math.max(
+        maxBottom,
+        this.overlayTitle.getBounds().bottom,
+        this.overlayScore.getBounds().bottom,
+      )
+    }
+
+    if (maxBottom > bottomLimit) {
+      // Negative delta moves everything up.
+      let deltaY = bottomLimit - maxBottom
+
+      // Clamp so the panel doesn't go beyond the top margin.
+      const topLimit = margin
+      const nextTop = panelBounds.top + deltaY
+      if (nextTop < topLimit) deltaY += topLimit - nextTop
+
+      if (deltaY !== 0) {
+        const shiftY = (obj: Phaser.GameObjects.GameObject & { y: number; setY: (y: number) => unknown }) =>
+          obj.setY(obj.y + deltaY)
+
+        shiftY(this.overlayBgImage)
+        shiftY(this.overlayStatus)
+        this.overlayRows.forEach(r => shiftY(r))
+        if (this.overlayMode === 'gameover') {
+          shiftY(this.overlayTitle)
+          shiftY(this.overlayScore)
+        }
+        shiftY(this.overlayRestartBtn)
+      }
+    }
   }
 
   /** Show the overlay and populate leaderboard rows. */
@@ -212,29 +326,56 @@ export class UIScene extends Phaser.Scene {
     )
     this.overlayStatus.setText(statusMsg)
 
+    // Update action button label based on mode
+    this.overlayRestartBtn.setText(this.overlayMode === 'browse' ? 'CLOSE' : 'PLAY AGAIN')
+
     // Clear all rows first
     this.overlayRows.forEach(r => r.setText(''))
 
     if (entries && entries.length > 0) {
       entries.slice(0, 10).forEach((e, i) => {
-        const medal  = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`
-        const name   = e.name.padEnd(12, ' ').slice(0, 14)
-        this.overlayRows[i].setText(`${medal}  ${name}  ${e.score.toLocaleString()}`)
-        // Highlight the player's just-submitted row
-        this.overlayRows[i].setColor(e.score === score ? '#4ade80' : '#e2e8f0')
+        const name  = e.name.slice(0, 11)
+        const pts   = e.score.toLocaleString()
+        this.overlayRows[i].setText(`${name}   ${pts}`)
+        if (this.overlayMode === 'gameover' && e.score === score)
+          this.overlayRows[i].setColor('#ffffff')
+        else if (i === 0) this.overlayRows[i].setColor('#ffe84d')
+        else if (i === 1) this.overlayRows[i].setColor('#d4d4d4')
+        else if (i === 2) this.overlayRows[i].setColor('#cd7f32')
+        else              this.overlayRows[i].setColor('#b8ff00')
       })
     } else if (!leaderboardConfigured()) {
-      this.overlayRows[0].setText('Leaderboard not configured.')
-      this.overlayRows[1].setText('See src/phaser/leaderboard.ts')
-      this.overlayRows[0].setColor('#fbbf24')
-      this.overlayRows[1].setColor('#94a3b8')
+      this.overlayRows[0].setText('No leaderboard configured')
+      this.overlayRows[1].setText('leaderboard.ts')
+      this.overlayRows[0].setColor('#c8ff00')
+      this.overlayRows[1].setColor('#7aad00')
     }
 
     this.overlayContainer.setVisible(true)
     this.layoutOverlay()
   }
 
+  /** Open the leaderboard in browse mode (no score submission, available pre-game). */
+  private showLeaderboardOnly(): void {
+    if (this.overlayVisible) return
+    this.overlayMode = 'browse'
+    this.overlayRows.forEach(r => r.setText(''))
+    this.overlayStatus.setText('Loading…')
+    this.showOverlay(0, null, 'Loading…')
+
+    if (!leaderboardConfigured()) {
+      this.showOverlay(0, null, '')
+      return
+    }
+
+    void fetchLeaderboard().then(entries => {
+      if (this.overlayVisible && this.overlayMode === 'browse')
+        this.showOverlay(0, entries, '')
+    })
+  }
+
   private hideOverlay(): void {
+    this.overlayMode    = 'gameover'
     this.overlayVisible = false
     this.overlayContainer.setVisible(false)
   }
@@ -267,8 +408,9 @@ export class UIScene extends Phaser.Scene {
     this.timerValueText.setPosition(px, py + dy * 2 + LO).setOrigin(0, 0)
     this.comboLabelText.setPosition(px, py + dy * 3).setOrigin(0, 0)
     this.comboValueText.setPosition(px, py + dy * 3 + LO).setOrigin(0, 0)
-    this.pauseButton.setPosition(px,       py + dy * 4 + LO + 8).setOrigin(0, 0)
-    this.restartButton.setPosition(px + 68, py + dy * 4 + LO + 8).setOrigin(0, 0)
+    this.pauseButton.setPosition(px,        py + dy * 4 + LO + 8).setOrigin(0, 0)
+    this.restartButton.setPosition(px + 90,  py + dy * 4 + LO + 8).setOrigin(0, 0)
+    this.leaderboardButton.setPosition(px,   py + dy * 4 + LO + 38).setOrigin(0, 0)
   }
 
   private layoutPortrait(width: number, height: number): void {
@@ -301,8 +443,10 @@ export class UIScene extends Phaser.Scene {
     this.comboValueText.setPosition(width / 2, comboAreaY + LO).setOrigin(0.5, 0)
 
     const btnY = comboAreaY + LO + Math.round(valSize * 0.82) + 10
-    this.pauseButton.setPosition(width / 2 - 44, btnY).setOrigin(0.5, 0)
-    this.restartButton.setPosition(width / 2 + 44, btnY).setOrigin(0.5, 0)
+    const btnRowGap = 36
+    this.pauseButton.setPosition(width / 2 - 54,  btnY).setOrigin(0.5, 0)
+    this.restartButton.setPosition(width / 2 + 54, btnY).setOrigin(0.5, 0)
+    this.leaderboardButton.setPosition(width / 2,  btnY + btnRowGap).setOrigin(0.5, 0)
   }
 
   /* ================================================================
@@ -359,21 +503,18 @@ export class UIScene extends Phaser.Scene {
     }
   }
 
-  /** On game over: get/set player name, submit score, show leaderboard. */
+  /** On game over: set mode to gameover, submit score, show leaderboard. */
   private onGameOver(): void {
-    this.pauseButton.setText('-')
+    this.overlayMode = 'gameover'
+    this.pauseButton.setText('⏸ Pause').setAlpha(0.35)
     const currentScore = readRegistryNumber(this, RegistryKeys.Score, 0)
-    // Always submit the all-time best (loaded from localStorage on startup),
-    // so players who scored higher in previous sessions aren't penalised.
+    // Submit the all-time best to the leaderboard, but display only this round's score.
     const submitBest = Math.max(currentScore, this.sessionBest)
 
-    // Show immediately with a loading state
-    this.showOverlay(submitBest, null, leaderboardConfigured() ? 'Submitting score…' : '')
+    // Show immediately (no status message)
+    this.showOverlay(currentScore, null, '')
 
-    if (!leaderboardConfigured()) {
-      this.showOverlay(submitBest, null, 'Set up leaderboard.ts to go global!')
-      return
-    }
+    if (!leaderboardConfigured()) return
 
     // Get or prompt for player name (stored so they only type it once)
     let name = localStorage.getItem(LS_NAME_KEY) ?? ''
@@ -384,10 +525,10 @@ export class UIScene extends Phaser.Scene {
 
     void submitScore(name, submitBest).then(entries => {
       if (entries) {
-        this.showOverlay(submitBest, entries, '✓ Score submitted')
+        this.showOverlay(currentScore, entries, '')
       } else {
         void fetchLeaderboard().then(fallback => {
-          this.showOverlay(submitBest, fallback, 'Could not submit – showing current board')
+          this.showOverlay(currentScore, fallback, '')
         })
       }
     })
@@ -395,7 +536,7 @@ export class UIScene extends Phaser.Scene {
 
   private onGameRestart(): void {
     this.hideOverlay()
-    this.pauseButton.setText('Pause')
+    this.pauseButton.setText('⏸ Pause').setAlpha(1)
     this.comboValueText.setText('-')
     this.timerValueText.setColor('#f1f5f9')
     this.syncFromRegistry()
@@ -419,10 +560,10 @@ export class UIScene extends Phaser.Scene {
     const isPaused = this.scene.isPaused('GameScene')
     if (isPaused) {
       this.scene.resume('GameScene')
-      this.pauseButton.setText('Pause')
+      this.pauseButton.setText('⏸ Pause')
     } else {
       this.scene.pause('GameScene')
-      this.pauseButton.setText('Resume')
+      this.pauseButton.setText('▶ Resume')
     }
   }
 
