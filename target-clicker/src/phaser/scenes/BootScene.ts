@@ -25,6 +25,6 @@ export class BootScene extends Phaser.Scene {
     this.registry.set(RegistryKeys.TimeLeftSeconds, DEFAULT_ROUND_SECONDS)
     this.registry.set(RegistryKeys.IsGameOver, false)
 
-    this.scene.start('PreloadScene')
+    this.scene.start('SplashScene')
   }
 }

@@ -15,9 +15,10 @@ export class PreloadScene extends Phaser.Scene {
 
   public preload(): void {
     // A) Alien Hive theme assets (files live directly in /public)
-    this.load.image('bg',     'bg.png')
-    this.load.image('idle',   'idle.png')
-    this.load.image('active', 'active.png')
+    this.load.image('bg',             'bg.png')
+    this.load.image('idle',           'idle.png')
+    this.load.image('active',         'active.png')
+    this.load.image('leaderboard_bg', 'leaderboard.png')
     // Background music
     this.load.audio('bgmusic', 'bg_music.wav')
   }
