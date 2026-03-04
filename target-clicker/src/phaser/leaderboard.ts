@@ -1,63 +1,68 @@
 /**
- * leaderboard.ts
+ * leaderboard.ts  –  target-clicker
  *
- * Global leaderboard backed by JSONBin.io – a free hosted JSON store.
- * No database, no server code required.
+ * Leaderboard backed by Firebase Realtime Database.
+ * Shared Firebase app is initialised in Gaming/firebase/firebase-config.ts.
  *
- * ─── SETUP (one time, ~2 min) ────────────────────────────────────────────────
- *  1. Go to https://jsonbin.io and create a free account.
- *  2. In the dashboard click "CREATE BIN", paste this as initial content:
- *       {"scores":[]}
- *     and save. Copy the Bin ID from the URL (looks like: 6615f9abc4…).
- *  3. Under "API Keys" generate a new key. Copy it.
- *  4. Paste both values into the two constants below.
+ * Data lives at:  /leaderboards/target-clicker/scores
+ *
+ * ─── SETUP ───────────────────────────────────────────────────────────────────
+ *  1. Complete the setup in Gaming/firebase/firebase-config.ts (paste your
+ *     Firebase project config values into FIREBASE_CONFIG).
+ *  2. In the Firebase console enable Realtime Database and set rules:
+ *       {
+ *         "rules": {
+ *           "leaderboards": {
+ *             "$gameId": { ".read": true, ".write": true }
+ *           }
+ *         }
+ *       }
+ *  That's it – no other config needed here.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-const JSONBIN_BIN_ID  = '69a6d34243b1c97be9af1b59'
-const JSONBIN_API_KEY = '$2a$10$9zm9qsJ9/Ra.issqEzVBnu0tj5gAcDix07a20p9X2bCTGkQRrljGC'
+import { ref, get, set } from 'firebase/database'
 
-const BASE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`
-const HEADERS  = {
-  'Content-Type': 'application/json',
-  'X-Master-Key': JSONBIN_API_KEY,
-  'X-Bin-Versioning': 'false', // keep single latest version – no history noise
-}
+import { db, firebaseConfigured } from '~firebase/firebase-config'
 
-/** Maximum entries kept in the leaderboard. */
+/** The RTDB path key for this game's leaderboard. */
+const GAME_ID     = 'target-clicker'
+const SCORES_PATH = `leaderboards/${GAME_ID}/scores`
+
+/** Maximum entries kept on the board. */
 const MAX_ENTRIES = 10
 
 export interface LeaderboardEntry {
   name:  string
   score: number
-  date:  string // ISO date string (date only, not time)
+  date:  string // ISO date string (date only)
 }
 
-/** Returns true when credentials have been filled in. */
+/** Returns true when Firebase credentials have been filled in. */
 export function leaderboardConfigured(): boolean {
-  return (
-    true
-  )
+  return firebaseConfigured()
 }
 
-/** Fetch the current top-10 from JSONBin. Falls back to [] on error. */
+/** Fetch the current top entries. Falls back to [] on error. */
 export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
   if (!leaderboardConfigured()) return []
   try {
-    const res = await fetch(`${BASE_URL}/latest`, { headers: HEADERS })
-    if (!res.ok) return []
-    const json = await res.json() as { record?: { scores?: LeaderboardEntry[] } }
-    return json.record?.scores ?? []
+    const snapshot = await get(ref(db, SCORES_PATH))
+    if (!snapshot.exists()) return []
+    const data = snapshot.val() as LeaderboardEntry[] | Record<string, LeaderboardEntry>
+    // RTDB can return an array or object depending on structure – normalise to array
+    const entries: LeaderboardEntry[] = Array.isArray(data)
+      ? data
+      : Object.values(data)
+    return entries.sort((a, b) => b.score - a.score).slice(0, MAX_ENTRIES)
   } catch {
     return []
   }
 }
 
 /**
- * Submit a new score. Each player gets exactly one slot (their personal best).
- * If an entry with the same name already exists:
- *   - new score is higher  → replace the entry
- *   - new score is equal or lower → leave the board unchanged, return it as-is
+ * Submit a new score.  Each player gets one slot (personal best only).
+ * - If the player already has an equal or higher score nothing is written.
  * Returns the updated board, or null on failure.
  */
 export async function submitScore(
@@ -69,13 +74,11 @@ export async function submitScore(
   const existing = await fetchLeaderboard()
 
   const cleanName = name.trim().slice(0, 20) || 'Anonymous'
-  const nameLower  = cleanName.toLowerCase()
+  const nameLower = cleanName.toLowerCase()
 
-  // Find existing entry for this player (case-insensitive)
   const existingIdx = existing.findIndex(e => e.name.toLowerCase() === nameLower)
-
   if (existingIdx !== -1 && existing[existingIdx].score >= score) {
-    // Player already has an equal or better score — nothing to update
+    // Player already has equal or better score — no write needed
     return existing
   }
 
@@ -85,7 +88,6 @@ export async function submitScore(
     date:  new Date().toISOString().slice(0, 10),
   }
 
-  // Remove any previous entry for this player, then insert the new best
   const updated = existing
     .filter(e => e.name.toLowerCase() !== nameLower)
     .concat(entry)
@@ -93,12 +95,7 @@ export async function submitScore(
     .slice(0, MAX_ENTRIES)
 
   try {
-    const res = await fetch(BASE_URL, {
-      method:  'PUT',
-      headers: HEADERS,
-      body:    JSON.stringify({ scores: updated }),
-    })
-    if (!res.ok) return null
+    await set(ref(db, SCORES_PATH), updated)
     return updated
   } catch {
     return null
