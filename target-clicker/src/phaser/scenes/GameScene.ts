@@ -9,6 +9,7 @@ import {
   readRegistryNumber,
   RegistryKeys,
 } from '../config'
+import { Settings } from '../settings'
 
 /* ──────────────────────────────────────────────
  * TWEAK THESE to adjust difficulty / feel
@@ -108,9 +109,9 @@ export class GameScene extends Phaser.Scene {
       emitting:  false,
     }).setDepth(5)
 
-    // Background music – looping, starts at rate 1, speeds up with combo
+    // Background music – looping at constant rate
     this.music = this.sound.add('bgmusic', { loop: true, volume: 0.5, rate: 1 }) as Phaser.Sound.WebAudioSound
-    this.music.play()
+    if (Settings.volumeEnabled) this.music.play()
 
     this.createTapPrompt()
     this.setupInput()
@@ -286,7 +287,7 @@ export class GameScene extends Phaser.Scene {
 
     // Slime splash + subtle camera shake
     this.spawnSlimeSplash(node.x, node.y)
-    this.cameras.main.shake(60, 0.002)
+    if (Settings.shakeEnabled) this.cameras.main.shake(60, 0.002)
   }
 
   /** F) Wrong-tap feedback: brief node nudge + red tint flash. */
@@ -432,7 +433,7 @@ export class GameScene extends Phaser.Scene {
       duration: 220,
       ease:     'Quad.easeOut',
     })
-    this.cameras.main.shake(70, 0.004)
+    if (Settings.shakeEnabled) this.cameras.main.shake(70, 0.004)
   }
 
   /* ================================================================
@@ -529,6 +530,7 @@ export class GameScene extends Phaser.Scene {
 
   /** Short sine-wave ding on hit. */
   private playHitSound(): void {
+    if (!Settings.sfxEnabled) return
     try {
       const ctx  = this.ensureAudio()
       const osc  = ctx.createOscillator()
@@ -547,6 +549,7 @@ export class GameScene extends Phaser.Scene {
 
   /** Plays /miss.mp3 from the public folder. */
   private playMissSound(): void {
+    if (!Settings.sfxEnabled) return
     try {
       const audio = new Audio('/miss.mp3')
       audio.volume = 0.7
@@ -556,6 +559,7 @@ export class GameScene extends Phaser.Scene {
 
   /** 2-pulse vibration on miss. No-ops silently on desktop / unsupported browsers. */
   private triggerHaptic(): void {
+    if (!Settings.vibrationEnabled) return
     if ('vibrate' in navigator) {
       try { navigator.vibrate([55, 25, 55]) } catch { /* ignore */ }
     }
@@ -609,6 +613,13 @@ export class GameScene extends Phaser.Scene {
     this.registry.set(RegistryKeys.IsGameOver, true)
     this.game.events.emit(GameEvents.GameOver)
     this.scene.pause()
+  }
+
+  /** Called by SettingsScene when the volume toggle changes mid-game. */
+  public setVolumeEnabled(on: boolean): void {
+    if (!this.music) return
+    if (on && !this.music.isPlaying) this.music.play()
+    else if (!on && this.music.isPlaying) this.music.stop()
   }
 
   /* ================================================================

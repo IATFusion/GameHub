@@ -34,6 +34,7 @@ export class UIScene extends Phaser.Scene {
   private comboValueText!: Phaser.GameObjects.Text
   private pauseButton!:    Phaser.GameObjects.Text
   private restartButton!:  Phaser.GameObjects.Text
+  private settingsButton!: Phaser.GameObjects.Text
 
   /* ── game-over / leaderboard overlay ── */
   private overlayBg!:         Phaser.GameObjects.Rectangle
@@ -137,6 +138,17 @@ export class UIScene extends Phaser.Scene {
       .on('pointerover',  () => this.leaderboardButton.setAlpha(0.75))
       .on('pointerout',   () => this.leaderboardButton.setAlpha(1))
       .on('pointerdown',  () => this.showLeaderboardOnly())
+
+    this.settingsButton = this.add
+      .text(0, 0, '⚙ Settings', {
+        fontFamily: FONT, fontSize: '13px', color: '#c8ff00', fontStyle: 'bold',
+        backgroundColor: '#1a3300', padding: { x: 12, y: 7 },
+      })
+      .setScrollFactor(0).setDepth(10)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerover',  () => this.settingsButton.setAlpha(0.75))
+      .on('pointerout',   () => this.settingsButton.setAlpha(1))
+      .on('pointerdown',  () => this.scene.launch('SettingsScene'))
 
     this.layoutPanel()
   }
@@ -408,9 +420,13 @@ export class UIScene extends Phaser.Scene {
     this.timerValueText.setPosition(px, py + dy * 2 + LO).setOrigin(0, 0)
     this.comboLabelText.setPosition(px, py + dy * 3).setOrigin(0, 0)
     this.comboValueText.setPosition(px, py + dy * 3 + LO).setOrigin(0, 0)
-    this.pauseButton.setPosition(px,        py + dy * 4 + LO + 8).setOrigin(0, 0)
-    this.restartButton.setPosition(px + 90,  py + dy * 4 + LO + 8).setOrigin(0, 0)
-    this.leaderboardButton.setPosition(px,   py + dy * 4 + LO + 38).setOrigin(0, 0)
+    const btnRowY1 = py + dy * 4 + LO + 8
+    const btnRowY2 = btnRowY1 + 32
+    const btnRowY3 = btnRowY2 + 32
+    this.pauseButton.setPosition(px,       btnRowY1).setOrigin(0, 0)
+    this.restartButton.setPosition(px + 90, btnRowY1).setOrigin(0, 0)
+    this.leaderboardButton.setPosition(px, btnRowY2).setOrigin(0, 0)
+    this.settingsButton.setPosition(px,    btnRowY3).setOrigin(0, 0)
   }
 
   private layoutPortrait(width: number, height: number): void {
@@ -446,7 +462,8 @@ export class UIScene extends Phaser.Scene {
     const btnRowGap = 36
     this.pauseButton.setPosition(width / 2 - 54,  btnY).setOrigin(0.5, 0)
     this.restartButton.setPosition(width / 2 + 54, btnY).setOrigin(0.5, 0)
-    this.leaderboardButton.setPosition(width / 2,  btnY + btnRowGap).setOrigin(0.5, 0)
+    this.leaderboardButton.setPosition(width / 2 - 54, btnY + btnRowGap).setOrigin(0.5, 0)
+    this.settingsButton.setPosition(width / 2 + 54,    btnY + btnRowGap).setOrigin(0.5, 0)
   }
 
   /* ================================================================

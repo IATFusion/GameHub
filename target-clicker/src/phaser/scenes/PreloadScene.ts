@@ -19,6 +19,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('idle',           'idle.png')
     this.load.image('active',         'active.png')
     this.load.image('leaderboard_bg', 'leaderboard.png')
+    this.load.image('settings_bg',    'settings.png')
     // Background music
     this.load.audio('bgmusic', 'bg_music.wav')
   }
