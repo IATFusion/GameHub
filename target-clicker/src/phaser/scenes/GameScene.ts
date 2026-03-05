@@ -205,9 +205,6 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  /** Redraw all 16 cells (no-op: cells are now egg sprites managed by buildNodes). */
-  private drawGrid(): void { /* replaced by buildNodes() + setNodeActive() */ }
-
   /* ================================================================
    * Node state helpers
    * ============================================================= */
