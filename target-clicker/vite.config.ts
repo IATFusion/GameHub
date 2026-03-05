@@ -19,6 +19,6 @@ export default defineConfig({
     dedupe: ['firebase', '@firebase/app', '@firebase/database'],
   },
   server: {
-    allowedHosts: ['localhost', '7099-102-33-236-42.ngrok-free.app'],
+    allowedHosts: ['localhost', '4307-41-122-141-30.ngrok-free.app'],
   },
 })
