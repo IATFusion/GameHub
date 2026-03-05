@@ -1,0 +1,305 @@
+﻿/* 
+   TOP HUD BAR  Three glowing panels: Left (Score), Center (Title), Right (Level)
+    */
+
+.top-hud {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 14px;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 2px;
+}
+
+/*  Shared panel card style  */
+
+.hud-card {
+  position: relative;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-glow);
+  padding: 10px 18px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+  clip-path: polygon(
+    12px 0%, calc(100% - 12px) 0%,
+    100% 12px, 100% calc(100% - 12px),
+    calc(100% - 12px) 100%, 12px 100%,
+    0% calc(100% - 12px), 0% 12px
+  );
+}
+
+.hud-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon-primary), transparent);
+  opacity: 0.25;
+}
+
+.hud-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(41, 224, 255, 0.15), transparent);
+}
+
+/*  Left Panel  Score / High Score / Lives  */
+
+.hud-card--left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: center;
+}
+
+.hud-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.hud-stat__label {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.hud-stat__value {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 6px rgba(46, 242, 195, 0.15);
+}
+
+.hud-stat__value--accent {
+  color: var(--neon-primary);
+  text-shadow: 0 0 10px rgba(46, 242, 195, 0.3);
+}
+
+.hud-stat__value--cyan {
+  color: var(--neon-secondary);
+  text-shadow: 0 0 10px rgba(41, 224, 255, 0.3);
+}
+
+/* Lives / hearts */
+.hud-lives {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.hud-lives__icons {
+  display: flex;
+  gap: 4px;
+}
+
+.hud-lives__heart {
+  width: 14px;
+  height: 14px;
+  filter: drop-shadow(0 0 4px rgba(46, 242, 195, 0.4));
+}
+
+.hud-lives__heart--lost {
+  opacity: 0.2;
+  filter: none;
+}
+
+/*  Center Panel  Game Title  */
+
+.hud-card--center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 32px;
+  min-width: 250px;
+}
+
+.hud-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: var(--neon-primary);
+  text-shadow:
+    0 0 10px rgba(46, 242, 195, 0.5),
+    0 0 30px rgba(46, 242, 195, 0.15);
+  animation: flicker 8s linear infinite;
+  line-height: 1;
+}
+
+.hud-subtitle {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 5px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+
+/*  Right Panel  Level & Goal  */
+
+.hud-card--right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  justify-content: center;
+}
+
+.hud-level {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.hud-level__number {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--neon-secondary);
+  text-shadow: 0 0 12px rgba(41, 224, 255, 0.35);
+}
+
+.hud-goal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.hud-goal__text {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.hud-goal__detail {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--neon-accent);
+  letter-spacing: 1px;
+}
+
+/*  Divider line between stat groups  */
+
+.hud-divider {
+  width: 1px;
+  height: 32px;
+  background: linear-gradient(180deg, transparent, var(--border-glow), transparent);
+}
+
+/*  Snake info pills (bottom overlay on game frame)  */
+
+.hud-snakes {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.hud-snake-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--bg-panel);
+  padding: 4px 14px;
+  border: 1px solid var(--border-dim);
+  clip-path: polygon(
+    8px 0%, calc(100% - 8px) 0%,
+    100% 8px, 100% calc(100% - 8px),
+    calc(100% - 8px) 100%, 8px 100%,
+    0% calc(100% - 8px), 0% 8px
+  );
+  backdrop-filter: blur(8px);
+}
+
+.hud-snake-pill__icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hud-snake-pill__icon svg {
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+.hud-snake-pill__value {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/*  Responsive  */
+
+@media (max-width: 860px) {
+  .top-hud {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .hud-card--center {
+    grid-column: 1 / -1;
+    order: -1;
+    min-width: auto;
+    padding: 6px 20px;
+  }
+  .hud-title { font-size: 15px; letter-spacing: 4px; }
+  .hud-stat__value { font-size: 16px; }
+  .hud-card { padding: 8px 12px; }
+}
+
+@media (max-width: 540px) {
+  .top-hud { grid-template-columns: 1fr; gap: 6px; }
+  .hud-card--left, .hud-card--right { justify-content: space-around; }
+}
+
+/* Landscape phones: ultra-compact single-row HUD */
+@media (max-height: 500px) {
+  .top-hud {
+    grid-template-columns: 1fr auto 1fr;
+    gap: 6px;
+  }
+  .hud-card {
+    padding: 4px 10px;
+    clip-path: polygon(
+      8px 0%, calc(100% - 8px) 0%,
+      100% 8px, 100% calc(100% - 8px),
+      calc(100% - 8px) 100%, 8px 100%,
+      0% calc(100% - 8px), 0% 8px
+    );
+  }
+  .hud-card--center {
+    grid-column: auto;
+    order: 0;
+    min-width: auto;
+    padding: 4px 14px;
+  }
+  .hud-title { font-size: 11px; letter-spacing: 3px; }
+  .hud-subtitle { font-size: 8px; letter-spacing: 3px; margin-top: 1px; }
+  .hud-stat__label { font-size: 7px; letter-spacing: 2px; }
+  .hud-stat__value { font-size: 14px; }
+  .hud-level__number { font-size: 16px; }
+  .hud-goal__text, .hud-goal__detail { font-size: 9px; }
+  .hud-divider { height: 20px; }
+  .hud-lives__heart { width: 10px; height: 10px; }
+  .hud-card--left, .hud-card--right { gap: 10px; }
+}

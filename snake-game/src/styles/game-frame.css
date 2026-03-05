@@ -1,0 +1,208 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   GAME FRAME — Sci-fi glowing border around the Phaser canvas
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Contain-fit the game frame using viewport units ──────────────────
+   Available height ≈ 100svh minus HUD/controls/gaps/padding (~200px desktop).
+   Width = min(full viewport width, height-derived width, hard cap).
+   Height follows from aspect-ratio. No JS, no container queries, no loops. */
+
+.game-frame {
+  position: relative;
+  /* Mobile-first: more overhead for wrapped HUD + touch controls */
+  --_overhead: 260px; /* HUD + controls + gaps + padding */
+  --_avail-h: calc(100svh - var(--_overhead));
+  width: min(
+    100%,
+    calc(var(--_avail-h) * 960 / 540),
+    1600px
+  );
+  aspect-ratio: 960 / 540;
+  margin: 0 auto;
+  border-radius: 4px;
+  animation: glow-breathe 4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+/* ── Outer glow halo ───────────────────────────────────────────────────── */
+
+.game-frame::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 6px;
+  background: linear-gradient(
+    135deg,
+    rgba(46, 242, 195, 0.08),
+    rgba(41, 224, 255, 0.05),
+    rgba(179, 77, 255, 0.04),
+    rgba(46, 242, 195, 0.08)
+  );
+  filter: blur(8px);
+  z-index: -1;
+  animation: frame-outer-pulse 5s ease-in-out infinite alternate;
+}
+
+@keyframes frame-outer-pulse {
+  0% { opacity: 0.5; }
+  100% { opacity: 0.9; }
+}
+
+/* ── Neon border (primary) ─────────────────────────────────────────────── */
+
+.game-frame__border {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  border: 2px solid rgba(46, 242, 195, 0.35);
+  pointer-events: none;
+  z-index: 5;
+  box-shadow:
+    inset 0 0 20px rgba(46, 242, 195, 0.04),
+    0 0 8px rgba(46, 242, 195, 0.12),
+    0 0 30px rgba(46, 242, 195, 0.05);
+  animation: border-pulse 4s ease-in-out infinite;
+}
+
+/* ── Inner glow line ───────────────────────────────────────────────────── */
+
+.game-frame__border::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 2px;
+  border: 1px solid rgba(41, 224, 255, 0.1);
+  pointer-events: none;
+}
+
+/* ── Corner accents — angled sci-fi brackets ───────────────────────────── */
+
+.game-frame__corner {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.game-frame__corner svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 4px rgba(46, 242, 195, 0.5));
+}
+
+.game-frame__corner--tl { top: -3px; left: -3px; }
+.game-frame__corner--tr { top: -3px; right: -3px; transform: scaleX(-1); }
+.game-frame__corner--bl { bottom: -3px; left: -3px; transform: scaleY(-1); }
+.game-frame__corner--br { bottom: -3px; right: -3px; transform: scale(-1, -1); }
+
+/* ── Holographic glass overlay ─────────────────────────────────────────── */
+
+.game-frame__glass {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 4;
+  background:
+    linear-gradient(
+      175deg,
+      rgba(46, 242, 195, 0.03) 0%,
+      transparent 30%,
+      transparent 70%,
+      rgba(41, 224, 255, 0.02) 100%
+    );
+}
+
+/* ── Canvas container ──────────────────────────────────────────────────── */
+
+.game-frame__canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+  overflow: hidden;
+  z-index: 2;
+  background: #05050f;
+}
+
+/* Let Phaser's Scale.FIT handle canvas sizing — no !important overrides */
+.game-frame__canvas canvas {
+  display: block;
+}
+
+/* ── Top edge accent line ──────────────────────────────────────────────── */
+
+.game-frame__edge-top {
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  z-index: 7;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(46, 242, 195, 0.5),
+    rgba(41, 224, 255, 0.6),
+    rgba(46, 242, 195, 0.5),
+    transparent
+  );
+  animation: shimmer 4s linear infinite;
+  background-size: 200% 100%;
+}
+
+/* ── Bottom edge accent ────────────────────────────────────────────────── */
+
+.game-frame__edge-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 1px;
+  z-index: 7;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(41, 224, 255, 0.3),
+    transparent
+  );
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+
+/* max-width is handled via the min() width rule above */
+
+@media (max-width: 768px) {
+  .game-frame {
+    border-radius: 2px;
+  }
+  .game-frame__corner {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (min-width: 769px) {
+  .game-frame {
+    --_overhead: 200px;
+    width: min(
+      100%,
+      calc(var(--_avail-h) * 960 / 540),
+      1600px
+    );
+  }
+}
+
+/* Landscape phones: minimal overhead so the canvas gets maximum space */
+@media (max-height: 500px) {
+  .game-frame {
+    --_overhead: 130px;
+  }
+}
+
+@media (max-height: 400px) {
+  .game-frame {
+    --_overhead: 110px;
+  }
+}

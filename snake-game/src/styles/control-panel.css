@@ -1,0 +1,245 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONTROL PANEL — Bottom console bar with Start/Pause, New Game, Settings
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.control-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 2px;
+  gap: 12px;
+}
+
+/* ── Left: Game icon + title ───────────────────────────────────────────── */
+
+.cp-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-dim);
+  padding: 6px 16px;
+  clip-path: polygon(
+    10px 0%, calc(100% - 10px) 0%,
+    100% 10px, 100% calc(100% - 10px),
+    calc(100% - 10px) 100%, 10px 100%,
+    0% calc(100% - 10px), 0% 10px
+  );
+  backdrop-filter: blur(8px);
+}
+
+.cp-brand__icon {
+  width: 22px;
+  height: 22px;
+  filter: drop-shadow(0 0 6px rgba(46, 242, 195, 0.4));
+}
+
+.cp-brand__text {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--neon-primary);
+  text-shadow: 0 0 8px rgba(46, 242, 195, 0.3);
+}
+
+/* ── Center: Primary action button ─────────────────────────────────────── */
+
+.cp-primary-btn {
+  position: relative;
+  padding: 10px 40px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 5px;
+  color: var(--bg-deep);
+  background: linear-gradient(135deg, var(--neon-primary) 0%, var(--neon-secondary) 100%);
+  border: none;
+  clip-path: polygon(
+    14px 0%, calc(100% - 14px) 0%,
+    100% 50%,
+    calc(100% - 14px) 100%, 14px 100%,
+    0% 50%
+  );
+  text-transform: uppercase;
+  transition: all 0.25s ease;
+  box-shadow:
+    0 0 16px rgba(46, 242, 195, 0.2),
+    0 0 40px rgba(46, 242, 195, 0.06);
+  animation: glow-breathe 3s ease-in-out infinite;
+  z-index: 1;
+}
+
+.cp-primary-btn:hover {
+  filter: brightness(1.15);
+  box-shadow:
+    0 0 24px rgba(46, 242, 195, 0.35),
+    0 0 60px rgba(46, 242, 195, 0.12);
+  transform: scale(1.04);
+}
+
+.cp-primary-btn:active {
+  transform: scale(0.97);
+  filter: brightness(0.95);
+}
+
+.cp-primary-btn--danger {
+  background: linear-gradient(135deg, var(--neon-danger) 0%, #ff6090 100%);
+  box-shadow:
+    0 0 16px rgba(255, 42, 109, 0.2),
+    0 0 40px rgba(255, 42, 109, 0.06);
+}
+
+.cp-primary-btn--danger:hover {
+  box-shadow:
+    0 0 24px rgba(255, 42, 109, 0.35),
+    0 0 60px rgba(255, 42, 109, 0.12);
+}
+
+/* ── Right: Secondary buttons ──────────────────────────────────────────── */
+
+.cp-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.cp-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--neon-primary);
+  background: transparent;
+  border: 1px solid var(--border-glow);
+  clip-path: polygon(
+    8px 0%, calc(100% - 8px) 0%,
+    100% 8px, 100% calc(100% - 8px),
+    calc(100% - 8px) 100%, 8px 100%,
+    0% calc(100% - 8px), 0% 8px
+  );
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.cp-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--neon-primary);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: -1;
+}
+
+.cp-btn:hover {
+  color: var(--bg-deep);
+  border-color: var(--neon-primary);
+  box-shadow: 0 0 12px rgba(46, 242, 195, 0.25);
+}
+
+.cp-btn:hover::before {
+  opacity: 1;
+}
+
+.cp-btn:active {
+  transform: scale(0.96);
+}
+
+.cp-btn__icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* ── Navigation strip ──────────────────────────────────────────────────── */
+
+.nav-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 2px;
+}
+
+.nav-strip__line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(46, 242, 195, 0.15),
+    rgba(41, 224, 255, 0.1),
+    transparent
+  );
+}
+
+.nav-strip__arrows {
+  display: flex;
+  gap: 6px;
+}
+
+.nav-strip__arrow {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.3;
+}
+
+.nav-strip__arrow svg {
+  filter: drop-shadow(0 0 3px rgba(46, 242, 195, 0.4));
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .control-panel {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  .cp-brand { display: none; }
+  .cp-primary-btn {
+    padding: 8px 32px;
+    font-size: 11px;
+    letter-spacing: 3px;
+  }
+  .cp-btn {
+    padding: 6px 12px;
+    font-size: 9px;
+  }
+  .nav-strip { display: none; }
+}
+
+/* Landscape phones: compact single-row controls */
+@media (max-height: 500px) {
+  .control-panel {
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 6px;
+    padding: 0;
+  }
+  .cp-brand { display: none; }
+  .cp-primary-btn {
+    padding: 5px 22px;
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+  .cp-btn {
+    padding: 4px 10px;
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  .nav-strip { display: none; }
+}

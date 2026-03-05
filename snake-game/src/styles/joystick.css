@@ -1,0 +1,128 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   JOYSTICK — Mobile on-screen joystick / trackpad control
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.joystick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: env(safe-area-inset-bottom);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+/* Hide on larger layouts; this is mobile-first */
+@media (min-width: 900px) {
+  .joystick { display: none; }
+}
+
+.joystick__base {
+  width: 118px;
+  height: 118px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(41, 224, 255, 0.10), transparent 55%),
+    radial-gradient(circle at 70% 70%, rgba(179, 77, 255, 0.08), transparent 60%),
+    rgba(6, 8, 24, 0.65);
+  border: 1px solid rgba(46, 242, 195, 0.22);
+  box-shadow:
+    inset 0 0 22px rgba(46, 242, 195, 0.08),
+    0 0 18px rgba(46, 242, 195, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.joystick__base::before {
+  content: '';
+  position: absolute;
+  inset: 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(41, 224, 255, 0.14);
+  opacity: 0.9;
+}
+
+.joystick__base.is-active {
+  box-shadow:
+    inset 0 0 22px rgba(46, 242, 195, 0.14),
+    0 0 24px rgba(46, 242, 195, 0.18);
+}
+
+.joystick__thumb {
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -27px;
+  margin-top: -27px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.20), transparent 55%),
+    linear-gradient(135deg, rgba(46, 242, 195, 0.75), rgba(41, 224, 255, 0.55));
+  border: 1px solid rgba(6, 8, 24, 0.75);
+  box-shadow:
+    0 0 18px rgba(46, 242, 195, 0.25),
+    0 0 35px rgba(41, 224, 255, 0.10);
+  transform: translate(0px, 0px);
+  transition: transform 80ms linear;
+}
+
+@media (max-width: 480px) {
+  .joystick { gap: 6px; }
+
+  .joystick__base {
+    width: 96px;
+    height: 96px;
+  }
+
+  .joystick__base::before {
+    inset: 12px;
+  }
+
+  .joystick__thumb {
+    width: 44px;
+    height: 44px;
+    margin-left: -22px;
+    margin-top: -22px;
+  }
+}
+
+/* Landscape phones: smaller joystick to save vertical space */
+@media (max-height: 500px) {
+  .joystick {
+    gap: 2px;
+    padding-bottom: 0;
+  }
+
+  .joystick__base {
+    width: 72px;
+    height: 72px;
+  }
+
+  .joystick__base::before {
+    inset: 8px;
+  }
+
+  .joystick__thumb {
+    width: 34px;
+    height: 34px;
+    margin-left: -17px;
+    margin-top: -17px;
+  }
+
+  .joystick__label {
+    font-size: 7px;
+    letter-spacing: 2px;
+  }
+}
+
+.joystick__label {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: rgba(224, 236, 255, 0.7);
+  text-shadow: 0 0 10px rgba(46, 242, 195, 0.2);
+}

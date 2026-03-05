@@ -1,0 +1,278 @@
+﻿/* 
+   GAME OVER OVERLAY — gameover.png image + Play Again button
+   Fully responsive: mobile-first with container-query-based number sizing
+    */
+
+.gameover-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  background: rgba(5, 5, 15, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: fade-in 0.6s ease-out;
+  padding:
+    calc(12px + env(safe-area-inset-top))
+    calc(12px + env(safe-area-inset-right))
+    calc(12px + env(safe-area-inset-bottom))
+    calc(12px + env(safe-area-inset-left));
+}
+
+.gameover-overlay__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 2.5svh, 24px);
+  animation: slide-up 0.6s ease-out;
+  width: 100%;
+  max-width: 900px;
+  overflow: hidden;
+}
+
+/* Image wrapper — sized to the image; nudged right to compensate for crop offset */
+.gameover-overlay__img-wrap {
+  position: relative;
+  display: block;
+  max-width: 100%;
+  margin: 0 auto;
+  width: fit-content;
+  transform: translateX(8px);
+}
+
+.gameover-overlay__img {
+  /* Constrained by both width and height so it always fits any screen */
+  display: block;
+  max-width: min(100%, 560px);
+  max-height: min(68svh, 520px);
+  width: auto;
+  height: auto;
+  filter: drop-shadow(0 0 20px rgba(255, 42, 109, 0.3));
+  animation: pulse-glow-img 2.5s ease-in-out infinite;
+}
+
+/* Invisible "textbox" overlays for score values */
+.gameover-overlay__stat {
+  position: absolute;
+  pointer-events: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 1px;
+  font-variant-numeric: tabular-nums;
+  text-shadow:
+    0 0 10px rgba(0, 0, 0, 0.55),
+    0 0 18px rgba(41, 224, 255, 0.18);
+}
+
+/* vmin scales with the smaller viewport dimension — adapts to both
+   portrait AND landscape without overflow.
+   6vmin ≈ 22px on 375px phone, ≈ 40px capped on desktop. */
+.gameover-overlay__stat-value {
+  font-size: clamp(16px, 6vmin, 40px);
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-width: 2.5ch;
+  padding: 1px clamp(4px, 1vmin, 10px);
+  border-radius: clamp(4px, 0.8vmin, 8px);
+  background: linear-gradient(180deg, rgba(6, 8, 24, 0.06), rgba(6, 8, 24, 0));
+  box-shadow:
+    inset 0 0 0 1px rgba(224, 236, 255, 0.08),
+    0 0 12px rgba(0, 0, 0, 0.2);
+  -webkit-text-stroke: 0.5px rgba(0, 0, 0, 0.3);
+}
+
+/* Positions — % of the image wrapper */
+.gameover-overlay__stat--score {
+  left: 28.5%;
+  top: 58.5%;
+  transform: translate(-50%, -50%);
+}
+
+.gameover-overlay__stat--best {
+  left: 62%;
+  top: 57%;
+  transform: translate(-50%, -50%);
+}
+
+/* Cyberpunk color accents per field */
+.gameover-overlay__stat--score .gameover-overlay__stat-value {
+  background-image: linear-gradient(135deg, rgba(46, 242, 195, 0.12), rgba(46, 242, 195, 0));
+  color: var(--neon-primary);
+  text-shadow:
+    0 0 8px rgba(0, 0, 0, 0.55),
+    0 0 14px rgba(46, 242, 195, 0.35),
+    0 0 28px rgba(46, 242, 195, 0.14);
+  box-shadow:
+    inset 0 0 0 1px rgba(46, 242, 195, 0.16),
+    0 0 14px rgba(46, 242, 195, 0.1);
+}
+
+.gameover-overlay__stat--best .gameover-overlay__stat-value {
+  background-image: linear-gradient(135deg, rgba(41, 224, 255, 0.12), rgba(41, 224, 255, 0));
+  color: var(--neon-secondary);
+  text-shadow:
+    0 0 8px rgba(0, 0, 0, 0.55),
+    0 0 14px rgba(41, 224, 255, 0.35),
+    0 0 28px rgba(41, 224, 255, 0.14);
+  box-shadow:
+    inset 0 0 0 1px rgba(41, 224, 255, 0.16),
+    0 0 14px rgba(41, 224, 255, 0.1);
+}
+
+@keyframes pulse-glow-img {
+  0%, 100% { filter: drop-shadow(0 0 16px rgba(255, 42, 109, 0.2)); }
+  50% { filter: drop-shadow(0 0 32px rgba(255, 42, 109, 0.4)); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   ORIENTATION BLOCKER — force landscape on mobile
+   ───────────────────────────────────────────────────────────────────────── */
+
+.orientation-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 5, 15, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding:
+    calc(16px + env(safe-area-inset-top))
+    calc(16px + env(safe-area-inset-right))
+    calc(16px + env(safe-area-inset-bottom))
+    calc(16px + env(safe-area-inset-left));
+}
+
+.orientation-overlay__card {
+  width: min(520px, 100%);
+  padding: 18px 16px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(6, 8, 24, 0.78), rgba(6, 8, 24, 0.62));
+  box-shadow:
+    inset 0 0 0 1px rgba(224, 236, 255, 0.08),
+    0 0 18px rgba(0, 0, 0, 0.35),
+    0 0 30px rgba(46, 242, 195, 0.12);
+  text-align: center;
+}
+
+.orientation-overlay__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 4px;
+  font-size: 14px;
+  color: var(--neon-secondary);
+  text-shadow: 0 0 10px rgba(41, 224, 255, 0.35);
+}
+
+.orientation-overlay__subtitle {
+  margin-top: 10px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+  opacity: 0.95;
+}
+
+/*  Play Again button  */
+
+.go-restart-btn {
+  padding: 8px 22px;
+  min-height: 36px;
+  font-family: var(--font-display);
+  font-size: clamp(9px, 1.8vw, 12px);
+  font-weight: 700;
+  letter-spacing: clamp(2px, 0.8vw, 4px);
+  color: var(--text-primary);
+  background: linear-gradient(
+    135deg,
+    var(--neon-primary) 0%,
+    var(--neon-accent) 28%,
+    var(--neon-secondary) 72%,
+    var(--neon-glow) 100%
+  );
+  border: none;
+  border-radius: 5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow:
+    0 0 14px rgba(46, 242, 195, 0.28),
+    0 0 30px rgba(41, 224, 255, 0.18);
+  animation: glow-breathe-nebula 3s ease-in-out infinite;
+}
+
+@keyframes glow-breathe-nebula {
+  0%, 100% {
+    box-shadow:
+      0 0 10px rgba(46, 242, 195, 0.22),
+      0 0 24px rgba(41, 224, 255, 0.14);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(46, 242, 195, 0.42),
+      0 0 40px rgba(41, 224, 255, 0.28);
+  }
+}
+
+.go-restart-btn:hover {
+  filter: brightness(1.2);
+  box-shadow:
+    0 0 28px rgba(46, 242, 195, 0.55),
+    0 0 50px rgba(41, 224, 255, 0.35);
+  transform: scale(1.06);
+}
+
+.go-restart-btn:active {
+  transform: scale(0.96);
+}
+
+/* ── Responsive breakpoints ────────────────────────────────────────────── */
+
+/* Short viewports (landscape phones): tighten vertical space */
+@media (max-height: 500px) {
+  .gameover-overlay__content { gap: 8px; }
+  .gameover-overlay__img { max-height: min(58svh, 340px); }
+  .go-restart-btn { padding: 6px 18px; min-height: 30px; }
+}
+
+/* Mobile landscape (primary play mode) */
+@media (max-height: 500px) and (orientation: landscape) {
+  .gameover-overlay__stat--score { left: 28.0%; top: 58.0%; }
+  .gameover-overlay__stat--best  { left: 72.0%; top: 58.0%; }
+}
+
+/* Small portrait phones (orientation blocker is up, but just in case) */
+@media (max-width: 420px) and (orientation: portrait) {
+  .gameover-overlay__img { max-width: 96%; }
+  .gameover-overlay__stat--score { top: 59%; }
+  .gameover-overlay__stat--best  { top: 59%; }
+}
+
+/* Tablets — give the art a bit more room */
+@media (min-width: 769px) and (max-width: 1199px) {
+  .gameover-overlay__img {
+    max-width: min(100%, 680px);
+    max-height: min(72svh, 560px);
+  }
+  .go-restart-btn { padding: 8px 26px; font-size: 11px; letter-spacing: 3px; }
+}
+
+/* Desktop / large screens */
+@media (min-width: 1200px) {
+  .gameover-overlay__content { gap: 28px; }
+  .gameover-overlay__img {
+    max-width: min(100%, 820px);
+    max-height: none;
+  }
+  .go-restart-btn { padding: 10px 32px; min-height: 0; font-size: 12px; letter-spacing: 4px; }
+}
