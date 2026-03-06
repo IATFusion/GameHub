@@ -2,7 +2,6 @@
 node_modules/
 
 # Build outputs
-dist/
 build/
 
 # Vite / TypeScript cache
@@ -20,3 +19,5 @@ Thumbs.db
 
 # Editor
 .vscode/settings.json
+
+.vs
