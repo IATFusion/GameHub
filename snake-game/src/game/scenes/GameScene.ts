@@ -160,9 +160,6 @@ export class GameScene extends Phaser.Scene {
     this.vfx.emitDeath(this.player.headPixelX, this.player.headPixelY, COLORS.PLAYER_GLOW);
     this.vfx.shake(CAMERA_SHAKE_INTENSITY * 2, CAMERA_SHAKE_DURATION * 2);
 
-    // Slow-mo zoom
-    this.vfx.zoomTo(1.3, DEATH_SLOW_MO_DURATION);
-
     // Update best score
     if (this.score > this.bestScore) {
       this.bestScore = this.score;

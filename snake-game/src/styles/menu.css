@@ -33,16 +33,14 @@
   animation: slide-up 0.6s ease-out;
   width: 100%;
   max-width: 900px;
-  overflow: hidden;
 }
 
-/* Image wrapper — sized to the image; centered */
+/* Image wrapper — centered via flex */
 .menu-overlay__img-wrap {
   position: relative;
-  display: block;
-  max-width: 100%;
-  margin: 0 auto;
-  width: fit-content;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .menu-overlay__img {
@@ -68,13 +66,13 @@
   font-size: clamp(9px, 1.8vw, 12px);
   font-weight: 700;
   letter-spacing: clamp(2px, 0.8vw, 4px);
-  color: var(--text-primary);
+  color: #050510;
   background: linear-gradient(
     135deg,
-    var(--neon-primary) 0%,
-    var(--neon-accent) 28%,
-    var(--neon-secondary) 72%,
-    var(--neon-glow) 100%
+    #00c896 0%,
+    #00d4aa 30%,
+    #00b4d8 70%,
+    #0096c7 100%
   );
   border: none;
   border-radius: 5px;
@@ -82,16 +80,16 @@
   cursor: pointer;
   transition: all 0.25s ease;
   box-shadow:
-    0 0 14px rgba(46, 242, 195, 0.28),
-    0 0 30px rgba(41, 224, 255, 0.18);
+    0 0 12px rgba(0, 200, 150, 0.35),
+    0 0 28px rgba(0, 180, 216, 0.2);
   animation: glow-breathe-nebula 3s ease-in-out infinite;
 }
 
 .menu-launch-btn:hover {
-  filter: brightness(1.2);
+  filter: brightness(1.15);
   box-shadow:
-    0 0 28px rgba(46, 242, 195, 0.55),
-    0 0 50px rgba(41, 224, 255, 0.35);
+    0 0 24px rgba(0, 200, 150, 0.6),
+    0 0 44px rgba(0, 180, 216, 0.4);
   transform: scale(1.06);
 }
 
@@ -99,24 +97,91 @@
   transform: scale(0.96);
 }
 
-/* ── Responsive ────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS — per-device media queries
+   translateX(1.2%) on img-wrap scales proportionally at every size.
+   ══════════════════════════════════════════════════════════════════════════ */
 
-/* Short viewports (landscape phones) */
-@media (max-height: 500px) {
+/* ── Small phones (≤375px) — iPhone SE, Galaxy S8 ──────────────────────── */
+@media (max-width: 375px) {
   .menu-overlay__content { gap: 8px; }
-  .menu-overlay__img { max-height: min(60svh, 360px); }
-  .menu-launch-btn { padding: 6px 18px; min-height: 30px; }
+  .menu-overlay__img { max-width: 96%; max-height: min(60svh, 380px); }
+  .menu-launch-btn { padding: 6px 16px; min-height: 30px; }
 }
 
-/* Tablets */
-@media (min-width: 769px) and (max-width: 1199px) {
-  .menu-overlay__img { max-width: min(100%, 680px); max-height: min(72svh, 560px); }
-  .menu-launch-btn { padding: 8px 26px; font-size: 11px; letter-spacing: 3px; }
+/* ── Standard phones (376px–428px) — iPhone 12/13/14, Pixel 7 ──────────── */
+@media (min-width: 376px) and (max-width: 428px) {
+  .menu-overlay__content { gap: 10px; }
+  .menu-overlay__img { max-width: 96%; max-height: min(64svh, 420px); }
+  .menu-launch-btn { padding: 7px 18px; min-height: 32px; }
 }
 
-/* Desktop / large screens */
-@media (min-width: 1200px) {
-  .menu-overlay__content { gap: 28px; }
+/* ── Large phones (429px–599px) — iPhone Plus/Max, Galaxy S Ultra ─────── */
+@media (min-width: 429px) and (max-width: 599px) {
+  .menu-overlay__content { gap: 12px; }
+  .menu-overlay__img { max-width: min(100%, 560px); max-height: min(66svh, 460px); }
+  .menu-launch-btn { padding: 8px 20px; min-height: 34px; }
+}
+
+/* ── Phablets / small tablets (600px–767px) — Galaxy Fold open, Nexus 7 ── */
+@media (min-width: 600px) and (max-width: 767px) {
+  .menu-overlay__content { gap: 14px; }
+  .menu-overlay__img { max-width: min(100%, 600px); max-height: min(68svh, 480px); }
+  .menu-launch-btn { padding: 8px 22px; min-height: 34px; }
+}
+
+/* ── Landscape phones (short viewports ≤500px height) ──────────────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .menu-overlay__content { gap: 6px; }
+  .menu-overlay__img { max-height: min(58svh, 340px); }
+  .menu-launch-btn { padding: 5px 16px; min-height: 28px; }
+}
+
+/* ── iPad Mini portrait (768px–819px) ──────────────────────────────────── */
+@media (min-width: 768px) and (max-width: 819px) {
+  .menu-overlay__content { gap: 16px; }
+  .menu-overlay__img { max-width: min(100%, 620px); max-height: min(68svh, 500px); }
+  .menu-launch-btn { padding: 8px 24px; font-size: 11px; letter-spacing: 3px; }
+}
+
+/* ── iPad Air / iPad 10th gen portrait (820px–834px) ───────────────────── */
+@media (min-width: 820px) and (max-width: 834px) {
+  .menu-overlay__content { gap: 18px; }
+  .menu-overlay__img { max-width: min(100%, 650px); max-height: min(70svh, 520px); }
+  .menu-launch-btn { padding: 8px 24px; font-size: 11px; letter-spacing: 3px; }
+}
+
+/* ── iPad Pro 11" portrait / standard tablets (835px–1024px) ────────────── */
+@media (min-width: 835px) and (max-width: 1024px) {
+  .menu-overlay__content { gap: 18px; }
+  .menu-overlay__img { max-width: min(100%, 680px); max-height: min(70svh, 540px); }
+  .menu-launch-btn { padding: 9px 26px; font-size: 11px; letter-spacing: 3px; }
+}
+
+/* ── iPad landscape / iPad Mini landscape (1025px–1199px) ──────────────── */
+@media (min-width: 1025px) and (max-width: 1199px) {
+  .menu-overlay__content { gap: 20px; }
+  .menu-overlay__img { max-width: min(100%, 720px); max-height: min(72svh, 560px); }
+  .menu-launch-btn { padding: 9px 28px; font-size: 11px; letter-spacing: 3px; }
+}
+
+/* ── iPad Pro 12.9" landscape / small desktop (1200px–1399px) ──────────── */
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .menu-overlay__content { gap: 24px; }
+  .menu-overlay__img { max-width: min(100%, 760px); max-height: none; }
+  .menu-launch-btn { padding: 10px 30px; min-height: 0; font-size: 12px; letter-spacing: 4px; }
+}
+
+/* ── Desktop (1400px–1599px) — standard monitors ───────────────────────── */
+@media (min-width: 1400px) and (max-width: 1599px) {
+  .menu-overlay__content { gap: 26px; }
   .menu-overlay__img { max-width: min(100%, 820px); max-height: none; }
   .menu-launch-btn { padding: 10px 32px; min-height: 0; font-size: 12px; letter-spacing: 4px; }
+}
+
+/* ── Large desktop (1600px+) — ultrawide, 4K ───────────────────────────── */
+@media (min-width: 1600px) {
+  .menu-overlay__content { gap: 28px; }
+  .menu-overlay__img { max-width: min(100%, 900px); max-height: none; }
+  .menu-launch-btn { padding: 12px 36px; min-height: 0; font-size: 13px; letter-spacing: 5px; }
 }
