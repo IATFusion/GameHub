@@ -35,6 +35,14 @@
   max-width: 900px;
 }
 
+.menu-overlay__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
 /* Image wrapper — centered via flex */
 .menu-overlay__img-wrap {
   position: relative;
@@ -97,6 +105,38 @@
   transform: scale(0.96);
 }
 
+.menu-settings-btn {
+  padding: 8px 20px;
+  min-height: 36px;
+  font-family: var(--font-display);
+  font-size: clamp(9px, 1.8vw, 12px);
+  font-weight: 700;
+  letter-spacing: clamp(2px, 0.8vw, 4px);
+  color: var(--neon-secondary);
+  background: rgba(6, 8, 24, 0.72);
+  border: 1px solid rgba(41, 224, 255, 0.38);
+  border-radius: 5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow:
+    inset 0 0 0 1px rgba(224, 236, 255, 0.05),
+    0 0 18px rgba(41, 224, 255, 0.12);
+}
+
+.menu-settings-btn:hover {
+  color: #050510;
+  background: linear-gradient(135deg, rgba(41, 224, 255, 0.9), rgba(46, 242, 195, 0.9));
+  box-shadow:
+    0 0 24px rgba(41, 224, 255, 0.28),
+    0 0 44px rgba(46, 242, 195, 0.16);
+  transform: scale(1.04);
+}
+
+.menu-settings-btn:active {
+  transform: scale(0.96);
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    RESPONSIVE BREAKPOINTS — per-device media queries
    translateX(1.2%) on img-wrap scales proportionally at every size.
@@ -106,7 +146,9 @@
 @media (max-width: 375px) {
   .menu-overlay__content { gap: 8px; }
   .menu-overlay__img { max-width: 96%; max-height: min(60svh, 380px); }
+  .menu-overlay__buttons { gap: 8px; }
   .menu-launch-btn { padding: 6px 16px; min-height: 30px; }
+  .menu-settings-btn { padding: 6px 14px; min-height: 30px; }
 }
 
 /* ── Standard phones (376px–428px) — iPhone 12/13/14, Pixel 7 ──────────── */
@@ -114,6 +156,7 @@
   .menu-overlay__content { gap: 10px; }
   .menu-overlay__img { max-width: 96%; max-height: min(64svh, 420px); }
   .menu-launch-btn { padding: 7px 18px; min-height: 32px; }
+  .menu-settings-btn { padding: 7px 16px; min-height: 32px; }
 }
 
 /* ── Large phones (429px–599px) — iPhone Plus/Max, Galaxy S Ultra ─────── */
@@ -121,6 +164,7 @@
   .menu-overlay__content { gap: 12px; }
   .menu-overlay__img { max-width: min(100%, 560px); max-height: min(66svh, 460px); }
   .menu-launch-btn { padding: 8px 20px; min-height: 34px; }
+  .menu-settings-btn { padding: 8px 18px; min-height: 34px; }
 }
 
 /* ── Phablets / small tablets (600px–767px) — Galaxy Fold open, Nexus 7 ── */
@@ -128,6 +172,7 @@
   .menu-overlay__content { gap: 14px; }
   .menu-overlay__img { max-width: min(100%, 600px); max-height: min(68svh, 480px); }
   .menu-launch-btn { padding: 8px 22px; min-height: 34px; }
+  .menu-settings-btn { padding: 8px 20px; min-height: 34px; }
 }
 
 /* ── Landscape phones (short viewports ≤500px height) ──────────────────── */
@@ -135,6 +180,7 @@
   .menu-overlay__content { gap: 6px; }
   .menu-overlay__img { max-height: min(58svh, 340px); }
   .menu-launch-btn { padding: 5px 16px; min-height: 28px; }
+  .menu-settings-btn { padding: 5px 14px; min-height: 28px; }
 }
 
 /* ── iPad Mini portrait (768px–819px) ──────────────────────────────────── */

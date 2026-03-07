@@ -18,6 +18,7 @@ import type { FoodItem } from '../objects/Food';
 import { VFXSystem } from '../systems/VFXSystem';
 import { AudioSystem } from '../systems/AudioSystem';
 import { DifficultySystem } from '../systems/DifficultySystem';
+import { readStoredSettings } from '../../settings/gameSettings';
 
 export class GameScene extends Phaser.Scene {
   // Core objects
@@ -73,11 +74,13 @@ export class GameScene extends Phaser.Scene {
     this.vfx = new VFXSystem(this);
     this.audio = new AudioSystem();
     this.difficulty = new DifficultySystem();
+    this.audio.setEnabled(readStoredSettings().soundEnabled);
 
     // Listen for UI commands
     this.bridge.on(GameEvents.UI_START_GAME, () => this.startGame());
     this.bridge.on(GameEvents.UI_RESTART_GAME, () => this.restartGame());
     this.bridge.on(GameEvents.UI_TOGGLE_SOUND, () => this.audio.toggle());
+    this.bridge.on(GameEvents.UI_SET_SOUND_ENABLED, (enabled) => this.audio.setEnabled(Boolean(enabled)));
     this.bridge.on(GameEvents.UI_PAUSE_GAME, () => this.pauseGame());
     this.bridge.on(GameEvents.UI_RESUME_GAME, () => this.resumeGame());
 

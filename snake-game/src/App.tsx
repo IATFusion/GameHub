@@ -11,6 +11,7 @@ import { ControlPanel } from './react/components/ControlPanel';
 import { SpaceBackground } from './react/components/SpaceBackground';
 import { MainMenu } from './react/components/MainMenu';
 import { GameOverOverlay } from './react/components/GameOverOverlay';
+import { GameSettingsOverlay } from './react/components/GameSettingsOverlay';
 import { MobileControls } from './react/components/MobileControls';
 import { Joystick } from './react/components/Joystick';
 import { OrientationOverlay } from './react/components/OrientationOverlay';
@@ -68,6 +69,7 @@ function GameApp() {
       {/* Overlays */}
       <MainMenu />
       <GameOverOverlay />
+      <GameSettingsOverlay />
       <OrientationOverlay />
     </>
   );

@@ -1,36 +1,31 @@
 // ─── Joystick ──────────────────────────────────────────────────────────────
-// Mobile on-screen joystick / trackpad for 4-way movement
+// Mobile on-screen touch pad for 4-way movement
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import EventBridge, { GameEvents } from '../../game/systems/EventBridge';
 import { Direction } from '../../game/systems/GameConstants';
+import { useGameContext } from '../context/GameContext';
 import { useGameState } from '../hooks/useGameState';
 import '../../styles/joystick.css';
 
-type Point = { x: number; y: number };
+const DIRECTION_LABELS: Record<Direction, string> = {
+  [Direction.UP]: 'Up',
+  [Direction.RIGHT]: 'Right',
+  [Direction.DOWN]: 'Down',
+  [Direction.LEFT]: 'Left',
+};
 
-function clamp(value: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, value));
-}
-
-function directionFromVector(dx: number, dy: number): Direction {
-  if (Math.abs(dx) > Math.abs(dy)) {
-    return dx >= 0 ? Direction.RIGHT : Direction.LEFT;
-  }
-  return dy >= 0 ? Direction.DOWN : Direction.UP;
-}
+const DIRECTION_SYMBOLS: Record<Direction, string> = {
+  [Direction.UP]: '▲',
+  [Direction.RIGHT]: '▶',
+  [Direction.DOWN]: '▼',
+  [Direction.LEFT]: '◀',
+};
 
 export function Joystick() {
   const { gameActive } = useGameState();
+  const { showJoystick } = useGameContext();
   const [isTouchDevice, setIsTouchDevice] = useState(false);
-  const [active, setActive] = useState(false);
-
-  const baseRef = useRef<HTMLDivElement>(null);
-  const pointerIdRef = useRef<number | null>(null);
-  const centerRef = useRef<Point>({ x: 0, y: 0 });
-  const [thumb, setThumb] = useState<Point>({ x: 0, y: 0 });
-  const lastDirRef = useRef<Direction | null>(null);
 
   useEffect(() => {
     const coarse = window.matchMedia?.('(pointer: coarse)');
@@ -59,83 +54,52 @@ export function Joystick() {
 
   const bridge = useMemo(() => EventBridge.getInstance(), []);
 
-  if (!isTouchDevice || !gameActive) return null;
+  if (!isTouchDevice || !gameActive || !showJoystick) return null;
 
-  const handlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (!baseRef.current) return;
-
-    const rect = baseRef.current.getBoundingClientRect();
-    centerRef.current = {
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
-    };
-
-    pointerIdRef.current = e.pointerId;
-    baseRef.current.setPointerCapture(e.pointerId);
-    setActive(true);
-    setThumb({ x: 0, y: 0 });
-    lastDirRef.current = null;
-  };
-
-  const handlePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (!active) return;
-    if (pointerIdRef.current !== e.pointerId) return;
-
-    const radius = 44;
-    const deadzone = 12;
-
-    const dx = e.clientX - centerRef.current.x;
-    const dy = e.clientY - centerRef.current.y;
-
-    const dist = Math.hypot(dx, dy);
-    const unitX = dist === 0 ? 0 : dx / dist;
-    const unitY = dist === 0 ? 0 : dy / dist;
-
-    const clampedDist = clamp(dist, 0, radius);
-    setThumb({ x: unitX * clampedDist, y: unitY * clampedDist });
-
-    if (dist < deadzone) return;
-
-    const dir = directionFromVector(dx, dy);
-    if (dir !== lastDirRef.current) {
-      lastDirRef.current = dir;
-      bridge.emit(GameEvents.UI_SET_DIRECTION, dir);
-    }
-  };
-
-  const handlePointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (pointerIdRef.current !== e.pointerId) return;
-
-    pointerIdRef.current = null;
-    setActive(false);
-    setThumb({ x: 0, y: 0 });
-    lastDirRef.current = null;
-
-    try {
-      baseRef.current?.releasePointerCapture(e.pointerId);
-    } catch {
-      // ignore
-    }
+  const handleDirectionPress = (direction: Direction) => {
+    bridge.emit(GameEvents.UI_SET_DIRECTION, direction);
   };
 
   return (
-    <div className="joystick" aria-label="Joystick">
-      <div
-        ref={baseRef}
-        className={`joystick__base ${active ? 'is-active' : ''}`}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-      >
-        <div
-          className="joystick__thumb"
-          style={{
-            transform: `translate(${thumb.x}px, ${thumb.y}px)`,
-          }}
-        />
+    <div className="joystick" aria-label="Touch pad">
+      <div className="joystick__base" role="group" aria-label="Directional touch pad">
+        <button
+          type="button"
+          className="joystick__button joystick__button--up"
+          aria-label={DIRECTION_LABELS[Direction.UP]}
+          onPointerDown={() => handleDirectionPress(Direction.UP)}
+        >
+          {DIRECTION_SYMBOLS[Direction.UP]}
+        </button>
+        <button
+          type="button"
+          className="joystick__button joystick__button--left"
+          aria-label={DIRECTION_LABELS[Direction.LEFT]}
+          onPointerDown={() => handleDirectionPress(Direction.LEFT)}
+        >
+          {DIRECTION_SYMBOLS[Direction.LEFT]}
+        </button>
+        <div className="joystick__core" aria-hidden="true">
+          TAP
+        </div>
+        <button
+          type="button"
+          className="joystick__button joystick__button--right"
+          aria-label={DIRECTION_LABELS[Direction.RIGHT]}
+          onPointerDown={() => handleDirectionPress(Direction.RIGHT)}
+        >
+          {DIRECTION_SYMBOLS[Direction.RIGHT]}
+        </button>
+        <button
+          type="button"
+          className="joystick__button joystick__button--down"
+          aria-label={DIRECTION_LABELS[Direction.DOWN]}
+          onPointerDown={() => handleDirectionPress(Direction.DOWN)}
+        >
+          {DIRECTION_SYMBOLS[Direction.DOWN]}
+        </button>
       </div>
-      <div className="joystick__label">DRAG</div>
+      <div className="joystick__label">TOUCH PAD</div>
     </div>
   );
 }

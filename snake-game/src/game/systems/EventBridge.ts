@@ -72,6 +72,7 @@ export const GameEvents = {
   UI_START_GAME:    'ui:start',
   UI_RESTART_GAME:  'ui:restart',
   UI_TOGGLE_SOUND:  'ui:toggleSound',
+  UI_SET_SOUND_ENABLED: 'ui:setSoundEnabled',
   UI_SET_DIRECTION: 'ui:direction',
   UI_PAUSE_GAME:    'ui:pause',
   UI_RESUME_GAME:   'ui:resume',

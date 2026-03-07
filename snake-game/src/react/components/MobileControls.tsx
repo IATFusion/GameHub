@@ -2,17 +2,19 @@
 // On-screen swipe hint for touch devices — neon teal sci-fi theme
 
 import { useEffect, useState } from 'react';
+import { useGameContext } from '../context/GameContext';
 import { useGameState } from '../hooks/useGameState';
 
 export function MobileControls() {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const { gameActive } = useGameState();
+  const { showSwipeHint } = useGameContext();
 
   useEffect(() => {
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
   }, []);
 
-  if (!isTouchDevice || !gameActive) return null;
+  if (!isTouchDevice || !gameActive || !showSwipeHint) return null;
 
   return (
     <div style={{

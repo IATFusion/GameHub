@@ -1,12 +1,12 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   JOYSTICK — Mobile on-screen joystick / trackpad control
+   JOYSTICK — Mobile on-screen touch pad control
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .joystick {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   padding-bottom: env(safe-area-inset-bottom);
   user-select: none;
   -webkit-user-select: none;
@@ -19,74 +19,153 @@
 }
 
 .joystick__base {
-  width: 118px;
-  height: 118px;
-  border-radius: 999px;
+  width: 174px;
+  height: 174px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 10px;
+  padding: 10px;
   background:
-    radial-gradient(circle at 30% 30%, rgba(41, 224, 255, 0.10), transparent 55%),
-    radial-gradient(circle at 70% 70%, rgba(179, 77, 255, 0.08), transparent 60%),
-    rgba(6, 8, 24, 0.65);
+    radial-gradient(circle at 50% 0%, rgba(41, 224, 255, 0.12), transparent 38%),
+    radial-gradient(circle at 18% 82%, rgba(179, 77, 255, 0.10), transparent 34%),
+    rgba(6, 8, 24, 0.78);
   border: 1px solid rgba(46, 242, 195, 0.22);
   box-shadow:
     inset 0 0 22px rgba(46, 242, 195, 0.08),
-    0 0 18px rgba(46, 242, 195, 0.08);
+    0 0 20px rgba(46, 242, 195, 0.1);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   position: relative;
+  clip-path: polygon(
+    16px 0%, calc(100% - 16px) 0%,
+    100% 16px, 100% calc(100% - 16px),
+    calc(100% - 16px) 100%, 16px 100%,
+    0% calc(100% - 16px), 0% 16px
+  );
+}
+
+.joystick__base::before,
+.joystick__base::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
 }
 
 .joystick__base::before {
-  content: '';
-  position: absolute;
-  inset: 14px;
-  border-radius: 999px;
+  inset: 12px;
   border: 1px solid rgba(41, 224, 255, 0.14);
-  opacity: 0.9;
+  clip-path: polygon(
+    12px 0%, calc(100% - 12px) 0%,
+    100% 12px, 100% calc(100% - 12px),
+    calc(100% - 12px) 100%, 12px 100%,
+    0% calc(100% - 12px), 0% 12px
+  );
 }
 
-.joystick__base.is-active {
-  box-shadow:
-    inset 0 0 22px rgba(46, 242, 195, 0.14),
-    0 0 24px rgba(46, 242, 195, 0.18);
-}
-
-.joystick__thumb {
-  width: 54px;
-  height: 54px;
-  border-radius: 999px;
-  position: absolute;
-  left: 50%;
+.joystick__base::after {
   top: 50%;
-  margin-left: -27px;
-  margin-top: -27px;
+  left: 14%;
+  right: 14%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(41, 224, 255, 0.3), transparent);
+  box-shadow: 0 -36px 0 rgba(46, 242, 195, 0.05), 0 36px 0 rgba(46, 242, 195, 0.05);
+}
+
+.joystick__button,
+.joystick__core {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.joystick__button {
+  border: 1px solid rgba(41, 224, 255, 0.24);
   background:
-    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.20), transparent 55%),
-    linear-gradient(135deg, rgba(46, 242, 195, 0.75), rgba(41, 224, 255, 0.55));
-  border: 1px solid rgba(6, 8, 24, 0.75);
+    linear-gradient(180deg, rgba(8, 12, 32, 0.88), rgba(6, 8, 24, 0.94));
+  color: var(--neon-primary);
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1;
+  text-shadow: 0 0 10px rgba(46, 242, 195, 0.26);
   box-shadow:
-    0 0 18px rgba(46, 242, 195, 0.25),
-    0 0 35px rgba(41, 224, 255, 0.10);
-  transform: translate(0px, 0px);
-  transition: transform 80ms linear;
+    inset 0 0 0 1px rgba(224, 236, 255, 0.03),
+    0 0 12px rgba(41, 224, 255, 0.06);
+  clip-path: polygon(
+    10px 0%, calc(100% - 10px) 0%,
+    100% 10px, 100% calc(100% - 10px),
+    calc(100% - 10px) 100%, 10px 100%,
+    0% calc(100% - 10px), 0% 10px
+  );
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.joystick__button:active {
+  transform: scale(0.95);
+  color: var(--bg-deep);
+  border-color: rgba(46, 242, 195, 0.42);
+  background: linear-gradient(135deg, rgba(46, 242, 195, 0.96), rgba(41, 224, 255, 0.88));
+  box-shadow:
+    0 0 16px rgba(46, 242, 195, 0.24),
+    0 0 28px rgba(41, 224, 255, 0.12);
+}
+
+.joystick__button--up {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.joystick__button--left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.joystick__button--right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.joystick__button--down {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.joystick__core {
+  grid-column: 2;
+  grid-row: 2;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: rgba(224, 236, 255, 0.72);
+  border: 1px solid rgba(46, 242, 195, 0.18);
+  background:
+    radial-gradient(circle at 50% 32%, rgba(46, 242, 195, 0.22), transparent 50%),
+    rgba(6, 8, 24, 0.72);
+  clip-path: polygon(
+    14px 0%, calc(100% - 14px) 0%,
+    100% 14px, 100% calc(100% - 14px),
+    calc(100% - 14px) 100%, 14px 100%,
+    0% calc(100% - 14px), 0% 14px
+  );
 }
 
 @media (max-width: 480px) {
   .joystick { gap: 6px; }
 
   .joystick__base {
-    width: 96px;
-    height: 96px;
+    width: 152px;
+    height: 152px;
+    gap: 8px;
+    padding: 8px;
   }
 
-  .joystick__base::before {
-    inset: 12px;
+  .joystick__button {
+    font-size: 20px;
   }
 
-  .joystick__thumb {
-    width: 44px;
-    height: 44px;
-    margin-left: -22px;
-    margin-top: -22px;
+  .joystick__core {
+    font-size: 9px;
+    letter-spacing: 2px;
   }
 }
 
@@ -98,19 +177,19 @@
   }
 
   .joystick__base {
-    width: 72px;
-    height: 72px;
+    width: 108px;
+    height: 108px;
+    gap: 6px;
+    padding: 6px;
   }
 
-  .joystick__base::before {
-    inset: 8px;
+  .joystick__button {
+    font-size: 16px;
   }
 
-  .joystick__thumb {
-    width: 34px;
-    height: 34px;
-    margin-left: -17px;
-    margin-top: -17px;
+  .joystick__core {
+    font-size: 7px;
+    letter-spacing: 2px;
   }
 
   .joystick__label {
@@ -123,6 +202,6 @@
   font-family: var(--font-display);
   font-size: 9px;
   letter-spacing: 4px;
-  color: rgba(224, 236, 255, 0.7);
-  text-shadow: 0 0 10px rgba(46, 242, 195, 0.2);
+  color: rgba(224, 236, 255, 0.78);
+  text-shadow: 0 0 10px rgba(46, 242, 195, 0.22);
 }

@@ -1,49 +1,16 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   CONTROL PANEL — Bottom console bar with Start/Pause, New Game, Settings
-   ═══════════════════════════════════════════════════════════════════════════ */
+  CONTROL PANEL — Bottom console bar with Start/Pause and Settings
+  ═══════════════════════════════════════════════════════════════════════════ */
 
 .control-panel {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
   padding: 0 2px;
   gap: 12px;
-}
-
-/* ── Left: Game icon + title ───────────────────────────────────────────── */
-
-.cp-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-dim);
-  padding: 6px 16px;
-  clip-path: polygon(
-    10px 0%, calc(100% - 10px) 0%,
-    100% 10px, 100% calc(100% - 10px),
-    calc(100% - 10px) 100%, 10px 100%,
-    0% calc(100% - 10px), 0% 10px
-  );
-  backdrop-filter: blur(8px);
-}
-
-.cp-brand__icon {
-  width: 22px;
-  height: 22px;
-  filter: drop-shadow(0 0 6px rgba(46, 242, 195, 0.4));
-}
-
-.cp-brand__text {
-  font-family: var(--font-display);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  color: var(--neon-primary);
-  text-shadow: 0 0 8px rgba(46, 242, 195, 0.3);
 }
 
 /* ── Center: Primary action button ─────────────────────────────────────── */
@@ -209,7 +176,6 @@
     justify-content: center;
     gap: 8px;
   }
-  .cp-brand { display: none; }
   .cp-primary-btn {
     padding: 8px 32px;
     font-size: 11px;
@@ -230,7 +196,6 @@
     gap: 6px;
     padding: 0;
   }
-  .cp-brand { display: none; }
   .cp-primary-btn {
     padding: 5px 22px;
     font-size: 10px;

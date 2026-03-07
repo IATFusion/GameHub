@@ -33,11 +33,15 @@ export class AudioSystem {
     this.basePitch = 1.0 + (snakeLength - 4) * 0.008;
   }
 
-  toggle(): void {
-    this.enabled = !this.enabled;
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
     if (this.masterGain) {
       this.masterGain.gain.value = this.enabled ? 0.3 : 0;
     }
+  }
+
+  toggle(): void {
+    this.setEnabled(!this.enabled);
   }
 
   isEnabled(): boolean {
